@@ -1,3 +1,6 @@
 # BDM1
 
-#a ver si funciona esta mierdaa
+# cambiate el directorio de los ficheros 
+
+
+
