@@ -25,4 +25,10 @@ if source != "opendatabcn-price":
         ingestTemporalLocal(source,file)
 else:
     year = sys.argv[2]
-    ingestTemporalCollect(year)
+    
+    all_years = map(str,range(2013,2019))
+    matching_year = [y for y in all_years if re.match(year, y)]
+
+    for year in matching_year:
+        ingestTemporalCollect(year)
+

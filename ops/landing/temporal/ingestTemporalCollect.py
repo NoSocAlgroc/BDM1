@@ -8,7 +8,7 @@ def ingestTemporalCollect(year):
     url = "https://opendata-ajuntament.barcelona.cat/data/api/3/action/package_search?q=name:est-mercat-immobiliari-compravenda-preu-total"
     response = requests.get(url)
     data = json.loads(response.text)
-    fileName=str(year)+"_comp_vend_preu_trim.csv"
+    fileName=str(year)+"_comp_vend_preu.csv"
     resId=[resource for resource in data['result']['results'][0]['resources'] if resource['name'].lower()==fileName][0]['id']
 
     url = "https://opendata-ajuntament.barcelona.cat/data/api/action/datastore_search?resource_id="+resId
