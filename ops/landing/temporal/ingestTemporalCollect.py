@@ -3,7 +3,7 @@ import json
 import csv
 import sys
 
-from ingestTemporalLocal import ingestTemporalLocal
+from .ingestTemporalLocal import ingestTemporalLocal
 def ingestTemporalCollect(year):
     url = "https://opendata-ajuntament.barcelona.cat/data/api/3/action/package_search?q=name:est-mercat-immobiliari-compravenda-preu-total"
     response = requests.get(url)
