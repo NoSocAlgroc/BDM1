@@ -39,7 +39,7 @@ def ingestPersistent_income(filePath):
             for row in data:
                 row=row.split(",")
                 writer.append({
-                    "Any": row[0],
+                    "Any": int(row[0]),
                     "Codi_Districte": int(row[1]),
                     "Nom_Districte": row[2],
                     "Codi_Barri": int(row[3]),
