@@ -1,0 +1,4 @@
+avro==1.11.1
+avro_python3==1.10.2
+hdfs==2.7.0
+requests==2.22.0
