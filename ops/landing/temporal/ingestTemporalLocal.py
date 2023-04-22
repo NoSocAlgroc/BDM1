@@ -7,5 +7,7 @@ def ingestTemporalLocal(ctr: Controller, source: str, file: str):
     #Destination path in Hadoop
     dstPath="landing/temporal/"+source+"/"+file
     #Clone file
-    ctr.uploadLocal(srcPath,dstPath)
+    ctr.writeLocal(srcPath,dstPath)
+
+    return file
 

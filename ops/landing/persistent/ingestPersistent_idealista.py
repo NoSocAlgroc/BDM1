@@ -1,16 +1,8 @@
-import json
-import avro.schema
-from avro.datafile import DataFileWriter
-from avro.io import DatumWriter
-import datetime
-import sys
-from hdfs import InsecureClient
+from ops.Controller import Controller
 
-
-def ingestPersistent_idealista(filePath):
-    srcPath="/user/bdm/landing/temporal/"+"idealista"+"/"+filePath
-    timestamp=int(datetime.datetime.utcnow().timestamp())
-    dstPath="/user/bdm/landing/persistent/"+"idealista"+"/"+filePath+"_"+str(timestamp)+".avro"
+def ingestPersistent_idealista(ctr: Controller,filePath: str, timestamp: int):
+    srcPath="landing/temporal/"+"idealista"+"/"+filePath
+    dstPath="landing/persistent/"+"idealista"+"/"+filePath+"_"+str(timestamp)+".avro"
     schema_dict = {
         "type": "record",
         "name": "idealista",
@@ -51,33 +43,29 @@ def ingestPersistent_idealista(filePath):
                     {'name': 'has3DTour', 'type': ['boolean', 'null'], 'default': 'unknown'},
                     {'name': 'has360', 'type': ['boolean', 'null'], 'default': 'unknown'},
                     {'name': 'hasStaging', 'type': ['boolean', 'null'], 'default': 'unknown'},
-                    {'name': 'topNewDevelopment',
-                    'type': ['boolean', 'null'],
-                    'default': 'unknown'}]
+                    {'name': 'topNewDevelopment', 'type': ['boolean', 'null'], 'default': 'unknown'},
+                    {'name': 'hasParkingSpace', 'type': ['boolean', 'null'], 'default': 'unknown'},
+                    {'name': 'isParkingSpaceIncludedInPrice', 'type': ['boolean', 'null'], 'default': 'unknown'},
+                    {'name': 'newDevelopmentFinished', 'type': ['boolean', 'null'], 'default': 'unknown'}
+                    ]
     }
-    # access to hadoop
-    client = InsecureClient('http://localhost:9870', user='bdm')
-    schema = avro.schema.Parse(json.dumps(schema_dict))
 
-    with client.read(srcPath) as json_file:
-    # Open the output Avro file
-        with client.write(dstPath, overwrite=True) as avro_file:
-                writer = DataFileWriter(avro_file, DatumWriter(), schema)
-                data=json.load(json_file)
-                
-                for row in data:
+    data=ctr.readHDFS_JSON(srcPath)
+    
+    def rowGenerator():
+         for row in data:
+            if 'suggestedTexts' in row:
+                row['typology']=row['detailedType']['typology']
+                del row['detailedType']
+            if 'suggestedTexts' in row:
+                row['title']=row['suggestedTexts']['title']
+                row['subtitle']=row['suggestedTexts']['subtitle']
+                del row['suggestedTexts'] 
+            if 'parkingSpace' in row:
+                row['hasParkingSpace']=row['parkingSpace']['hasParkingSpace']
+                row['isParkingSpaceIncludedInPrice']=row['parkingSpace']['isParkingSpaceIncludedInPrice']
+                del row['parkingSpace'] 
+            yield row
 
-                    row['typology']=row['detailedType']['typology']
-                    del row['detailedType']
-                    row['title']=row['suggestedTexts']['title']
-                    row['subtitle']=row['suggestedTexts']['subtitle']
-                    del row['suggestedTexts']
+    ctr.writeHDFS_Avro(rowGenerator(),schema_dict,dstPath)
 
-                    writer.append(row)
-                writer.flush()
-
-                    
-
-if __name__ == '__main__':
-    file = sys.argv[1]
-    ingestPersistent_idealista(file)

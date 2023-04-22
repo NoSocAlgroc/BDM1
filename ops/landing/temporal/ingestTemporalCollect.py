@@ -7,5 +7,7 @@ def ingestTemporalCollect(ctr:Controller, year):
     url=[resource for resource in data['result']['results'][0]['resources'] if resource['name'].lower()==fileName][0]['url']
 
     dstPath="landing/temporal/opendatabcn-price/"+fileName
-    ctr.uploadRemote(url,dstPath)
+    ctr.writeRemote(url,dstPath)
+
+    return fileName
 
